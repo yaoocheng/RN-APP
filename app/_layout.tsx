@@ -7,7 +7,7 @@ import '../css/global.css';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-//   const colorScheme = useColorScheme();
+  //   const colorScheme = useColorScheme();
   const [loaded, error] = useFonts({
     'Poppins-Black': require('../assets/fonts/Poppins-Black.ttf'),
     'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
@@ -35,11 +35,10 @@ export default function RootLayout() {
 
   return (
     // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false, animation: 'none'
-      }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-      </Stack>
+    <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+    </Stack>
     // </ThemeProvider>
   );
 }

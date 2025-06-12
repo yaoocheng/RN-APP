@@ -8,7 +8,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:fix": "expo lint --fix"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -46,7 +49,10 @@
     "@types/react": "~19.0.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
     "postcss": "^8.5.4",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3"
   },
