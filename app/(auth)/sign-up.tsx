@@ -1,13 +1,15 @@
 import CustomButton from '@/components/custom-button';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Alert, Image, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/form-field';
 import images from '../../constants/images';
 import { createUser } from '@/lib/appwrite';
+import { useGlobalContext } from '../../context/global-provider';
 
 const SignUp = () => {
+    const { setUserInfo, setIsLogin } = useGlobalContext();
     const [form, setForm] = useState({
         email: '',
         password: '',
@@ -15,10 +17,24 @@ const SignUp = () => {
     });
     const [isSubmitting, setSubmitting] = useState(false);
 
-    const submit = () => {
-        // setSubmitting(true);
-        createUser();
-        alert('submit');
+    const submit = async () => {
+        if (!form.email || !form.password || !form.username) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+        setSubmitting(true);
+        try {
+            const newUser = await createUser(form);
+            //登录后全局存储用户信息
+            setUserInfo(newUser);
+            setIsLogin(true);
+            router.replace('/home');
+        } catch (error: any) {
+            Alert.alert('Error', error.message);
+            console.log(error);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (

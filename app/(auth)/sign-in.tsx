@@ -1,10 +1,12 @@
 import CustomButton from '@/components/custom-button';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, ScrollView, Text, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/form-field';
 import images from '../../constants/images';
+import { signIn } from '@/lib/appwrite'
+
 
 const SignIn = () => {
     const [form, setForm] = useState({
@@ -12,9 +14,21 @@ const SignIn = () => {
         password: '',
     });
     const [isSubmitting, setSubmitting] = useState(false);
-    const submit = () => {
-        // setSubmitting(true);
-        alert('submit');
+    const submit = async () => {
+        if (!form.email || !form.password) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+        setSubmitting(true);
+        try {
+            await signIn(form);
+            router.replace('/home');
+        } catch (error: any) {
+            Alert.alert('Error', error.message);
+            console.log(error);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (

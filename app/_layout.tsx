@@ -3,6 +3,7 @@ import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import '../css/global.css';
+import GlobalProvider from '../context/global-provider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,11 +35,11 @@ export default function RootLayout() {
     }
 
     return (
-        // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-        </Stack>
-        // </ThemeProvider>
+        <GlobalProvider>
+            <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="(auth)" />
+            </Stack>
+        </GlobalProvider>
     );
 }
