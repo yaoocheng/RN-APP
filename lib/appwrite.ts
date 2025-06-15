@@ -15,9 +15,9 @@ export const appwriteConfig = {
 const client = new Client();
 
 client
-    .setEndpoint(appwriteConfig.endPoint) // Your Appwrite Endpoint
-    .setProject(appwriteConfig.projectyId) // Your project ID
-    .setPlatform(appwriteConfig.platform) // Your application ID or bundle ID.
+    .setEndpoint(appwriteConfig.endPoint)
+    .setProject(appwriteConfig.projectyId)
+    .setPlatform(appwriteConfig.platform)
 
 
 const account = new Account(client);
@@ -53,7 +53,7 @@ export const createUser = async (form: { email: string; password: string; userna
 export const signIn = async (form: { email: string, password: string }) => {
     try {
         const res = await account.createEmailPasswordSession(form.email, form.password);
-        
+
         if (!res) {
             throw new Error('登录失败');
         }
@@ -67,23 +67,50 @@ export const signIn = async (form: { email: string, password: string }) => {
 // is user login
 export const getCurUser = async () => {
     try {
-        const curAccount =  await account.get();
-        if(!curAccount) {
+        const curAccount = await account.get();
+        if (!curAccount) {
             throw new Error('未登录');
         }
 
         const curUser = await database.listDocuments(appwriteConfig.databaseId, appwriteConfig.userCollectionId, [
             Query.equal('accountId', curAccount.$id)
         ]);
-        
-        if(!curUser) {
+
+        if (!curUser) {
             throw new Error('用户不存在');
         }
 
         return curUser.documents[0];
     } catch (error) {
         console.log(error);
-        
+
     }
 }
+
+// 获取视频
+export const getAllVideos = async () => {
+    try {
+        const videos = await database.listDocuments(appwriteConfig.databaseId, appwriteConfig.videoCollectionId);
+        return videos.documents;
+    } catch (error: any) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
+// 热门视频
+export async function getLatestPosts() {
+    try {
+        const posts = await database.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            [Query.orderDesc("$createdAt"), Query.limit(6)]
+        );
+
+        return posts.documents;
+    } catch (error: any) {
+        throw new Error(error);
+    }
+}
+
 
