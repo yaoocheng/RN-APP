@@ -9,6 +9,7 @@ export default (fetchFn: any) => {
         try {
             const videos = await fetchFn();
             setVideos(videos);
+            setIsLoading(false);
         } catch (error: any) {
             console.log(error);
         } finally {

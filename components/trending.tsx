@@ -52,8 +52,8 @@ export default function Trending({ posts }: any) {
                         title={item.title}
                         thumbnail={item.thumbnail}
                         video={item.video}
-                        creator={userInfo.username}
-                        avatar={userInfo.avatar}
+                        creator={item.users.username}
+                        avatar={item.users.avatar}
                         type={'row'}
                     />
                 </Animatable.View>

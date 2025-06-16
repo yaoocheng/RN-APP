@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import { Text, FlatList, View, Image, RefreshControl } from 'react-native';
+import { Text, FlatList, View, Image, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { images } from '../../constants';
 import Search from '../../components/search';
 import Trending from '../../components/trending';
 import EmptyState from '../../components/empty';
 import useAppwrite from '../../lib/use-appwrite';
-import { getAllVideos, getLatestPosts } from '../../lib/appwrite';
-import { useGlobalContext } from '../../context/global-provider';
+import { getAllVideos, getLatestVideos } from '../../lib/appwrite';
 import VideoCard from '../../components/video-card';
+import { useGlobalContext } from '../../context/global-provider';
 
 const Home = () => {
-    const [refreshing, setRefreshing] = useState(false);
-    const { videos: videosAll, fetchData: fetchDataAll } = useAppwrite(getAllVideos);
-    const { videos: videosLatest, fetchData: fetchDataLatest } = useAppwrite(getLatestPosts);
-
     const { userInfo } = useGlobalContext();
-
+    const [refreshing, setRefreshing] = useState(false);
+    const { videos: videosAll, fetchData: fetchDataAll, isLoading: isLoadingAll } = useAppwrite(getAllVideos);
+    const { videos: videosLatest, fetchData: fetchDataLatest, isLoading: isLoadingLatest } = useAppwrite(getLatestVideos);
+    
     const onRefresh = async () => {
         setRefreshing(true);
         // request
@@ -27,30 +26,37 @@ const Home = () => {
     return (
         <>
             <SafeAreaView className='bg-primary h-full'>
-                <FlatList
+                {isLoadingAll || isLoadingLatest ? (
+                    <View className="flex-1 justify-center items-center">
+                        <ActivityIndicator size="large" color="#FF9001" />
+                        <Text className="text-white font-pmedium text-base mt-2">Loading...</Text>
+                    </View>
+                ) : (
+                    <FlatList
                     data={videosAll}
                     keyExtractor={(item: any) => item.$id}
                     // 竖视频列表
                     renderItem={({ item }) => {
+                        console.log('\n\n\n\n\n', item);
+                        
                         return (
                             <VideoCard
                             title={item.title}
                             thumbnail={item.thumbnail}
                             video={item.video}
-                            creator={userInfo.username}
-                            avatar={userInfo.avatar}
+                            creator={item.users.username}
+                            avatar={item.users.avatar}
                             type='col'
                           />
-                            // <Text className='text-white'>{item.title}</Text>
                         )
                     }}
                     // 列表头部
-                    ListHeaderComponent={() => (
+                ListHeaderComponent={() => (
                         <View className='my-6 px-4 space-y-6'>
                             <View className='justify-between items-start flex-row mb-6'>
                                 <View>
-                                    <Text className='font-pmedium text-sm text-green-100'>Welcome Back</Text>
-                                    <Text className='font-psemibold text-2xl text-white'>Yao Cheng</Text>
+                                    <Text className='font-pmedium text-sm text-green-100'>Welcome Back,</Text>
+                                    <Text className='font-psemibold text-2xl text-white'>{userInfo?.username}</Text>
                                 </View>
 
                                 <View>
@@ -60,7 +66,7 @@ const Home = () => {
 
                             <Search />
 
-                            {/* 热门视频 */}
+                            {/* 最新视频 */}
                             <View className="w-full flex-1 pt-5 pb-8">
                                 <Text className="text-lg font-pregular text-gray-100 mb-3">
                                     Latest Videos
@@ -77,8 +83,9 @@ const Home = () => {
                             subtitle="No videos created yet" />
                     )}
 
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                />
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
+                )}
             </SafeAreaView>
         </>
     );

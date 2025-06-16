@@ -57,7 +57,7 @@ const VideoCard = ({
                 {isVisible ? (
                     <VideoView
                         player={player}
-                        style={{ width: "100%", height: type === 'row' ? 260 : 240, borderRadius: 12, marginTop: type === 'row' ? 0 : 12 }}
+                        style={{ width: "100%", height: type === 'row' ? 260 : 240, borderRadius: 12, marginTop: 12 }}
                         allowsFullscreen
                         allowsPictureInPicture
                     />

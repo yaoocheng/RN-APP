@@ -44,14 +44,17 @@ const SignUp = () => {
                 keyboardShouldPersistTaps="handled"
             >
                 <View className="w-full justify-center h-full p-4">
-                    <Image
-                        source={images.logo}
-                        className="w-[115px] h-[35px]"
-                        resizeMode="contain"
-                    />
+                    <View className='flex-row items-center'>
+                        <Image
+                            source={images.logoSmall}
+                            className="w-[40px] h-[40px] mr-1"
+                            resizeMode="contain"
+                        />
+                        <Text className='text-white font-psemibold text-5xl'>AIVu</Text>
+                    </View>
 
                     <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
-                        Sign up to Aora
+                        Sign up to AIVu
                     </Text>
 
                     <FormField
