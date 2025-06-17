@@ -37,15 +37,15 @@ const Home = () => {
                     keyExtractor={(item: any) => item.$id}
                     // 竖视频列表
                     renderItem={({ item }) => {
-                        console.log('\n\n\n\n\n', item);
+                        console.log('\n\n\n\n',item.video);
                         
                         return (
                             <VideoCard
                             title={item.title}
                             thumbnail={item.thumbnail}
                             video={item.video}
-                            creator={item.users.username}
-                            avatar={item.users.avatar}
+                            creator={item.creator.username}
+                            avatar={item.creator.avatar}
                             type='col'
                           />
                         )

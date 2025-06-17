@@ -49,8 +49,8 @@ const Profile = () => {
                                     title={item.title}
                                     thumbnail={item.thumbnail}
                                     video={item.video}
-                                    creator={item.users.username}
-                                    avatar={item.users.avatar}
+                                    creator={item.creator.username}
+                                    avatar={item.creator.avatar}
                                     type='col'
                                 />
                                 // <Text className='text-white'>{item.title}</Text>

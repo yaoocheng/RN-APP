@@ -4,7 +4,7 @@ import { Client, Account, ID, Avatars, Storage, Databases, Query } from 'react-n
 export const appwriteConfig = {
     endPoint: "https://cloud.appwrite.io/v1",
     platform: 'com.personal.app',
-    projectyId: '684a414a0011f38adfc7',
+    projectId: '684a414a0011f38adfc7',
     databaseId: '684a47900009c86dc49f',
     userCollectionId: '684a480b001c65d35ccc',
     videoCollectionId: '684a4863000cde386347',
@@ -16,7 +16,7 @@ const client = new Client();
 
 client
     .setEndpoint(appwriteConfig.endPoint)
-    .setProject(appwriteConfig.projectyId)
+    .setProject(appwriteConfig.projectId)
     .setPlatform(appwriteConfig.platform)
 
 
@@ -83,7 +83,7 @@ export const getCurUser = async () => {
         }
 
         return curUser.documents[0];
-    } catch (error:any) {
+    } catch (error: any) {
         console.log(error);
         throw new Error(error)
     }
@@ -136,7 +136,7 @@ export async function getCurUserVideo(userId: string) {
         const posts = await database.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.videoCollectionId,
-            [Query.equal('users', userId)]
+            [Query.equal('creator', userId)]
         );
 
         return posts.documents;
@@ -155,76 +155,76 @@ export async function logout() {
 }
 
 // 查看文件地址
-export async function getFilePreview(fileId:any, type:string) {
+export async function getFilePreview(fileId: any, type: string) {
     let fileUrl;
-  
+
     try {
-      if (type === "video") {
-        fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
-      } else if (type === "image") {
-        fileUrl = storage.getFilePreview(
-          appwriteConfig.storageId,
-          fileId,
-          2000,
-          2000,
-          "top",
-          100
-        );
-      } else {
-        throw new Error("Invalid file type");
-      }
-  
-      if (!fileUrl) throw Error("File not found");
-  
-      return fileUrl;
-    } catch (error:any) {
-      throw new Error(error);
+        if (type === "video") {
+            fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
+        } else if (type === "image") {
+            fileUrl = storage.getFilePreview(
+                appwriteConfig.storageId,
+                fileId,
+                2000,
+                2000,
+                "top",
+                100
+            );
+        } else {
+            throw new Error("Invalid file type");
+        }
+
+        if (!fileUrl) throw Error("File not found");
+
+        return fileUrl;
+    } catch (error: any) {
+        throw new Error(error);
     }
-  }
+}
 
 // 上传
 export async function uploadFile(file: any, type: string) {
     if (!file) return;
-        
-    const asset = { type: file.mimeType, name: file.fileName, size: file.fileSize, uri: file.uri};
+
+    const asset = { type: file.mimeType, name: file.fileName, size: file.fileSize, uri: file.uri };
 
     try {
-      const uploadedFile = await storage.createFile(
-        appwriteConfig.storageId,
-        ID.unique(),
-        asset
-      );
-      
-      const fileUrl = await getFilePreview(uploadedFile.$id, type);
-      return fileUrl;
-    } catch (error:any) {
-      throw new Error(error);
+        const uploadedFile = await storage.createFile(
+            appwriteConfig.storageId,
+            ID.unique(),
+            asset,
+        );
+
+        const fileUrl = await getFilePreview(uploadedFile.$id, type);
+        return fileUrl;
+    } catch (error: any) {
+        throw new Error(error);
     }
-  }
+}
 
 // 创建视频
 export async function createVideo(form: { title: string; video: any; thumbnail: any; prompt: string; userId: string; }) {
     try {
-      const [thumbnailUrl, videoUrl] = await Promise.all([
-        uploadFile(form.thumbnail, "image"),
-        uploadFile(form.video, "video"),
-      ]);
-  
-      const newPost = await database.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.videoCollectionId,
-        ID.unique(),
-        {
-          title: form.title,
-          thumbnail: thumbnailUrl,
-          video: videoUrl,
-          prompt: form.prompt,
-          users: form.userId,
-        }
-      );
-  
-      return newPost;
-    } catch (error:any) {
-      throw new Error(error);
+        const [thumbnailUrl, videoUrl] = await Promise.all([
+            uploadFile(form.thumbnail, "image"),
+            uploadFile(form.video, "video"),
+        ]);
+
+        const newPost = await database.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            ID.unique(),
+            {
+                title: form.title,
+                thumbnail: thumbnailUrl,
+                video: videoUrl,
+                prompt: form.prompt,
+                creator: form.userId,
+            }
+        );
+
+        return newPost;
+    } catch (error: any) {
+        throw new Error(error);
     }
-  }
+}

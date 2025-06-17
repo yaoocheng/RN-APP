@@ -29,7 +29,7 @@ const VideoCard = ({
         <View className="flex flex-col items-center px-4 mb-14">
             {/* Header */}
             {type !== 'row' && (
-                <View className="flex flex-row gap-3 items-start">
+                <View className="flex flex-row justify-between items-center">
                     <View className="flex justify-center items-center flex-row flex-1">
                         <View className="w-[46px] h-[46px] rounded-lg border border-secondary flex justify-center items-center p-0.5">
                             <Image
@@ -47,8 +47,15 @@ const VideoCard = ({
                             </Text>
                         </View>
                     </View>
-                    <View className="pt-2">
-                        <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
+
+                    <View className="flex-row items-center gap-2">
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => {
+                            }}
+                        >
+                            <Image source={icons.collect} className="w-7 h-7" resizeMode="contain" />
+                        </TouchableOpacity>
                     </View>
                 </View>
             )}

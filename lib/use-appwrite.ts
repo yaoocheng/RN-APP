@@ -10,6 +10,7 @@ export default (fetchFn: any) => {
             const videos = await fetchFn();
             setVideos(videos);
             setIsLoading(false);
+            
         } catch (error: any) {
             console.log(error);
         } finally {

@@ -21,7 +21,7 @@ const EmptyState = ({ title, subtitle }: { title: string; subtitle: string }) =>
 
       <CustomButton
         title={pathname.includes('home') || pathname.includes('profile') ? "Create video" : "Back to Explore"}  
-        handlePress={() => router.push("/home")}
+        handlePress={() => pathname.includes('home') || pathname.includes('profile') ? router.push("/create") : router.push("/home")}
         containerStyles="w-full my-5"
       />
     </View>
