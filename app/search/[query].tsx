@@ -7,15 +7,21 @@ import useAppwrite from '../../lib/use-appwrite';
 import { searchVideo } from '../../lib/appwrite';
 import VideoCard from '../../components/video-card';
 import { useLocalSearchParams } from 'expo-router';
+import { useToast } from '../../hooks/useToast';
 
 const SearchPage = () => {
     const { query } = useLocalSearchParams();
     const fetchFn = useCallback(() => searchVideo(query as string), [query]);
     const { videos, fetchData, isLoading } = useAppwrite(fetchFn);
+    const { showError } = useToast();
 
     useEffect(() => {
+        if (!query) {
+            showError('Please enter a search query');
+            return;
+        }
         fetchData();
-    }, [query])
+    }, [query, fetchData, showError])
 
     return (
         <>

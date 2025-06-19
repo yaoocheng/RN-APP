@@ -6,8 +6,8 @@ export const appwriteConfig = {
     platform: 'com.personal.app',
     projectId: '684a414a0011f38adfc7',
     databaseId: '684a47900009c86dc49f',
-    userCollectionId: '684a480b001c65d35ccc',
-    videoCollectionId: '684a4863000cde386347',
+    userCollectionId: '68539bc90017ed4c5060',
+    videoCollectionId: '68539ac50034cd8e84e8',
     storageId: '684a5046002cc73aabf9',
 };
 
@@ -161,21 +161,24 @@ export async function getFilePreview(fileId: any, type: string) {
     try {
         if (type === "video") {
             fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
+            
         } else if (type === "image") {
-            fileUrl = storage.getFilePreview(
+            fileUrl = storage.getFileView(
                 appwriteConfig.storageId,
                 fileId,
-                2000,
-                2000,
-                "top",
-                100
-            );
+                // 2000,
+                // 2000,
+                // "top",
+                // 100
+            ).toString();
+            // console.log('\n\n\n\nimage', fileUrl);
+            
         } else {
             throw new Error("Invalid file type");
         }
 
         if (!fileUrl) throw Error("File not found");
-
+        
         return fileUrl;
     } catch (error: any) {
         throw new Error(error);
@@ -183,7 +186,7 @@ export async function getFilePreview(fileId: any, type: string) {
 }
 
 // 上传
-export async function uploadFile(file: any, type: string) {
+export async function uploadFile(file: any, type: string, userId: string) {
     if (!file) return;
 
     const asset = { type: file.mimeType, name: file.fileName, size: file.fileSize, uri: file.uri };
@@ -193,6 +196,10 @@ export async function uploadFile(file: any, type: string) {
             appwriteConfig.storageId,
             ID.unique(),
             asset,
+            // [
+            //     // Permission.read(Role.users()),  // 所有已登录用户可访问
+            //     // Permission.write(Role.user(userId)), // 上传者可删除或更新
+            //   ]
         );
 
         const fileUrl = await getFilePreview(uploadedFile.$id, type);
@@ -206,8 +213,8 @@ export async function uploadFile(file: any, type: string) {
 export async function createVideo(form: { title: string; video: any; thumbnail: any; prompt: string; userId: string; }) {
     try {
         const [thumbnailUrl, videoUrl] = await Promise.all([
-            uploadFile(form.thumbnail, "image"),
-            uploadFile(form.video, "video"),
+            uploadFile(form.thumbnail, "image", form.userId),
+            uploadFile(form.video, "video", form.userId),
         ]);
 
         const newPost = await database.createDocument(

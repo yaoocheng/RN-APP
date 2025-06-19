@@ -7,8 +7,11 @@ import FormField from '../../components/form-field';
 import images from '../../constants/images';
 import { createUser } from '@/lib/appwrite';
 import { useGlobalContext } from '../../context/global-provider';
+import { useToast } from '../../hooks/useToast';
+
 
 const SignUp = () => {
+    const { showError } = useToast();
     const { setUserInfo, setIsLogin } = useGlobalContext();
     const [form, setForm] = useState({
         email: '',
@@ -19,7 +22,7 @@ const SignUp = () => {
 
     const submit = async () => {
         if (!form.email || !form.password || !form.username) {
-            Alert.alert('Error', 'Please fill in all fields');
+            showError('Please fill in all fields');
             return;
         }
         setSubmitting(true);
@@ -30,7 +33,7 @@ const SignUp = () => {
             setIsLogin(true);
             router.replace('/home');
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            showError(error.message);
             console.log(error);
         } finally {
             setSubmitting(false);

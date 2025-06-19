@@ -10,12 +10,13 @@ import { getAllVideos, getLatestVideos } from '../../lib/appwrite';
 import VideoCard from '../../components/video-card';
 import { useGlobalContext } from '../../context/global-provider';
 
+
 const Home = () => {
     const { userInfo } = useGlobalContext();
     const [refreshing, setRefreshing] = useState(false);
     const { videos: videosAll, fetchData: fetchDataAll, isLoading: isLoadingAll } = useAppwrite(getAllVideos);
     const { videos: videosLatest, fetchData: fetchDataLatest, isLoading: isLoadingLatest } = useAppwrite(getLatestVideos);
-    
+
     const onRefresh = async () => {
         setRefreshing(true);
         // request
@@ -33,55 +34,57 @@ const Home = () => {
                     </View>
                 ) : (
                     <FlatList
-                    data={videosAll}
-                    keyExtractor={(item: any) => item.$id}
-                    // 竖视频列表
-                    renderItem={({ item }) => {
-                        console.log('\n\n\n\n',item.video);
-                        
-                        return (
-                            <VideoCard
-                            title={item.title}
-                            thumbnail={item.thumbnail}
-                            video={item.video}
-                            creator={item.creator.username}
-                            avatar={item.creator.avatar}
-                            type='col'
-                          />
-                        )
-                    }}
-                    // 列表头部
-                ListHeaderComponent={() => (
-                        <View className='my-6 px-4 space-y-6'>
-                            <View className='justify-between items-start flex-row mb-6'>
-                                <View>
-                                    <Text className='font-pmedium text-sm text-green-100'>Welcome Back,</Text>
-                                    <Text className='font-psemibold text-2xl text-white'>{userInfo?.username}</Text>
+                        data={videosAll}
+                        keyExtractor={(item: any) => item.$id}
+                        // 竖视频列表
+                        renderItem={({ item }) => {
+                            // console.log(item.thumbnail);
+                            
+                            return (
+                                <VideoCard
+                                    title={item.title}
+                                    thumbnail={item.thumbnail}
+                                    video={item.video}
+                                    creator={item.creator.username}
+                                    avatar={item.creator.avatar}
+                                    type='col'
+                                />
+                            )
+                        }}
+                        // 列表头部
+                        ListHeaderComponent={() => (
+                            <View className='my-6 px-4 space-y-6'>
+                                <View className='justify-between items-start flex-row mb-6'>
+                                    <View>
+                                        <Text className='font-pmedium text-sm text-green-100'>Welcome Back,</Text>
+                                        <Text className='font-psemibold text-2xl text-white'>{userInfo?.username}</Text>
+                                    </View>
+
+                                    <View>
+                                        <Image source={images.logoSmall} className='w-9 h-10' resizeMode='contain' />
+                                    </View>
                                 </View>
 
-                                <View>
-                                    <Image source={images.logoSmall} className='w-9 h-10' resizeMode='contain' />
+                                <Search />
+
+                                {/* 最新视频 */}
+                                <View className="w-full flex-1 pt-5 pb-8">
+                                    {videosLatest.length && (
+                                        <Text className="text-lg font-pregular text-gray-100 mb-3">
+                                            Latest Videos
+                                        </Text>
+                                    )}
+
+                                    <Trending posts={videosLatest} />
                                 </View>
                             </View>
+                        )}
 
-                            <Search />
-
-                            {/* 最新视频 */}
-                            <View className="w-full flex-1 pt-5 pb-8">
-                                <Text className="text-lg font-pregular text-gray-100 mb-3">
-                                    Latest Videos
-                                </Text>
-
-                                <Trending posts={videosLatest} />
-                            </View>
-                        </View>
-                    )}
-
-                    ListEmptyComponent={() => (
-                        <EmptyState
-                            title="No Videos Found"
-                            subtitle="No videos created yet" />
-                    )}
+                        ListEmptyComponent={() => (
+                            <EmptyState
+                                title="No Videos Found"
+                                subtitle="No videos created yet" />
+                        )}
 
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />

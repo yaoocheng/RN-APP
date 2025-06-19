@@ -9,10 +9,13 @@ import * as ImagePicker from "expo-image-picker";
 import { useGlobalContext } from '../../context/global-provider';
 import { router } from 'expo-router';
 import { createVideo } from '../../lib/appwrite';
+import { useToast } from '../../hooks/useToast';
 
 const Create = () => {
     const { userInfo } = useGlobalContext();
     const [uploading, setUploading] = useState(false);
+    const { showError } = useToast();
+
     const [form, setForm] = useState<any>({
         title: "",
         video: null,
@@ -29,7 +32,7 @@ const Create = () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (!permissionResult.granted) {
-            alert('Permission to access media library is required!');
+            showError('Permission to access media library is required!');
             return;
         }
 
@@ -69,6 +72,7 @@ const Create = () => {
             !form.thumbnail ||
             !form.video
         ) {
+            showError('Please fill in all fields');
             return
         }
         
