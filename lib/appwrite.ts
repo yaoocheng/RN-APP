@@ -186,7 +186,7 @@ export async function getFilePreview(fileId: any, type: string) {
 }
 
 // 上传
-export async function uploadFile(file: any, type: string, userId: string) {
+export async function uploadFile(file: any, type: string) {
     if (!file) return;
 
     const asset = { type: file.mimeType, name: file.fileName, size: file.fileSize, uri: file.uri };
@@ -196,14 +196,13 @@ export async function uploadFile(file: any, type: string, userId: string) {
             appwriteConfig.storageId,
             ID.unique(),
             asset,
-            // [
-            //     // Permission.read(Role.users()),  // 所有已登录用户可访问
-            //     // Permission.write(Role.user(userId)), // 上传者可删除或更新
-            //   ]
         );
 
         const fileUrl = await getFilePreview(uploadedFile.$id, type);
-        return fileUrl;
+        return {
+            url: fileUrl,
+            id: uploadedFile.$id,
+        };
     } catch (error: any) {
         throw new Error(error);
     }
@@ -212,9 +211,9 @@ export async function uploadFile(file: any, type: string, userId: string) {
 // 创建视频
 export async function createVideo(form: { title: string; video: any; thumbnail: any; prompt: string; userId: string; }) {
     try {
-        const [thumbnailUrl, videoUrl] = await Promise.all([
-            uploadFile(form.thumbnail, "image", form.userId),
-            uploadFile(form.video, "video", form.userId),
+        const [thumbnailRes, videoRes] = await Promise.all([
+            uploadFile(form.thumbnail, "image"),
+            uploadFile(form.video, "video"),
         ]);
 
         const newPost = await database.createDocument(
@@ -223,8 +222,10 @@ export async function createVideo(form: { title: string; video: any; thumbnail: 
             ID.unique(),
             {
                 title: form.title,
-                thumbnail: thumbnailUrl,
-                video: videoUrl,
+                thumbnail: thumbnailRes?.url,
+                thumbnailId: thumbnailRes?.id,
+                video: videoRes?.url,
+                videoId: videoRes?.id,
                 prompt: form.prompt,
                 creator: form.userId,
             }
@@ -235,3 +236,48 @@ export async function createVideo(form: { title: string; video: any; thumbnail: 
         throw new Error(error);
     }
 }
+
+
+/**
+ * 收藏视频
+ */
+export async function collectVideo(videoId: string, userId: string) {
+    try {
+      // 先获取视频文档
+      const video = await database.getDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.videoCollectionId,
+        videoId
+      );
+  
+      const collectors = video.collectors || [];
+  
+      // 如果已收藏，就不重复添加
+      if (collectors.includes(userId)) return collectors;
+  
+      // 添加用户 ID
+      const updated = [...collectors, userId];
+  
+      // 更新文档
+      const updatedVideo = await database.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.videoCollectionId,
+        videoId,
+        {
+          collectors: updated,
+        }
+      );
+      console.log('\n\n\n\n\n收藏成功', updatedVideo);
+      
+      return updatedVideo;
+    } catch (error: any) {
+      throw new Error(error.message || '收藏失败');
+    }
+  }
+  
+
+
+
+/**
+ * 取消收藏
+ */

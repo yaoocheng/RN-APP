@@ -1,8 +1,9 @@
 import { useVideoPlayer, VideoView } from "expo-video";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { useState } from "react";
-
+import { useGlobalContext } from "../context/global-provider";
 import { icons } from "../constants";
+import { collectVideo } from "../lib/appwrite";
 
 const VideoCard = ({
     title,
@@ -10,20 +11,33 @@ const VideoCard = ({
     avatar,
     thumbnail,
     video,
-    type
+    type,
+    collector,
+    id,
 }: {
     title: string;
     creator: string;
     avatar: string;
     thumbnail: string;
     video: string;
-    type: 'row' | 'col'
+    type: 'row' | 'col',
+    collector: string[],
+    id:string
 }) => {
     const [isVisible, setIsVisible] = useState(false);
-
+    const { userInfo } = useGlobalContext();
     const player = useVideoPlayer(video, (player) => {
         player.loop = false;
     });
+
+    // 收藏
+    const handleCollect = async () => {
+        try {
+            await collectVideo(id, userInfo.$id);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <View className="flex flex-col items-center px-4 mb-14">
@@ -49,13 +63,24 @@ const VideoCard = ({
                     </View>
 
                     <View className="flex-row items-center gap-2">
-                        <TouchableOpacity
-                            activeOpacity={0.7}
-                            onPress={() => {
-                            }}
-                        >
-                            <Image source={icons.collect} className="w-7 h-7" resizeMode="contain" />
-                        </TouchableOpacity>
+                        {collector?.includes(userInfo?.$id) ? (
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                onPress={() => {
+                                }}
+                            >
+                                <Image source={icons.collected} className="w-7 h-7" resizeMode="contain" />
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                onPress={() => {
+                                    handleCollect()
+                                }}
+                            >
+                                <Image source={icons.collect} className="w-7 h-7" resizeMode="contain" />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
             )}

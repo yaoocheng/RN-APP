@@ -39,14 +39,16 @@ const Home = () => {
                         // 竖视频列表
                         renderItem={({ item }) => {
                             // console.log(item.thumbnail);
-                            
+
                             return (
                                 <VideoCard
                                     title={item.title}
                                     thumbnail={item.thumbnail}
                                     video={item.video}
+                                    id={item.$id}
                                     creator={item.creator.username}
                                     avatar={item.creator.avatar}
+                                    collector={item.collector}
                                     type='col'
                                 />
                             )
@@ -69,7 +71,7 @@ const Home = () => {
 
                                 {/* 最新视频 */}
                                 <View className="w-full flex-1 pt-5 pb-8">
-                                    {videosLatest.length && (
+                                    {videosLatest.length > 0 && (
                                         <Text className="text-lg font-pregular text-gray-100 mb-3">
                                             Latest Videos
                                         </Text>
