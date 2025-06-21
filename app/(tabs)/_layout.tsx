@@ -35,12 +35,12 @@ const TabsLayout = () => {
     const tabsData = [
         { name: 'home', title: 'Home', icon: icons.home, displayName: 'Home' },
         
-        {
-            name: 'bookmark',
-            title: 'Bookmark',
-            icon: icons.bookmark,
-            displayName: 'Bookmark',
-        },
+        // {
+        //     name: 'bookmark',
+        //     title: 'Bookmark',
+        //     icon: icons.bookmark,
+        //     displayName: 'Bookmark',
+        // },
         {
             name: 'create',
             title: 'Create',
@@ -66,7 +66,7 @@ const TabsLayout = () => {
                         backgroundColor: '#161622',
                         borderTopWidth: 0,
                         // borderTopColor: '#44475f40',
-                        paddingTop:10
+                        paddingTop:10,
                     },
                     tabBarActiveTintColor: '#FFA001',
                     tabBarInactiveTintColor: '#CDCDE0',

@@ -5,7 +5,6 @@ import '../css/global.css';
 import GlobalProvider from '../context/global-provider';
 import Toast from 'react-native-toast-message';
 import { useFonts } from 'expo-font';
-import { toastConfig } from '../hooks/useToast';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -44,7 +43,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="search/[query]" />
             </Stack>
-            <Toast config={toastConfig} />
+            <Toast />
         </GlobalProvider>
     );
 }

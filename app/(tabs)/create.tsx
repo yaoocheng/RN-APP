@@ -54,6 +54,10 @@ const Create = () => {
             }
 
             if (selectType === 'video') {
+                if (selectedAsset.fileSize && selectedAsset.fileSize > 50 * 1024 * 1024) {
+                    showError('video size cannot exceed 50MB');
+                    return;
+                }
                 setForm((prev: any) => ({
                     ...prev,
                     video: selectedAsset,

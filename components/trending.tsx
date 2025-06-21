@@ -43,7 +43,7 @@ export default function Trending({ posts }: any) {
                         key={item.$id}
                         className={`rounded-full ${
                             activeItem === item.$id 
-                                ? 'w-3 h-3 bg-orange-500' 
+                                ? 'w-3 h-3 bg-secondary' 
                                 : 'w-2 h-2 bg-gray-400'
                         }`}
                     />

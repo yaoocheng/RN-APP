@@ -23,6 +23,9 @@ const Search = ({initialQuery}: any) => {
             />
             <TouchableOpacity onPress={() => {
                 setTimeout(() => {
+                    if(!query) {
+                        return;
+                    }
                     if (pathname.includes('search')) {
                         router.setParams({ query });
                     } else {

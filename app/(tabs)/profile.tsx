@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Text, FlatList, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Text, FlatList, View, ActivityIndicator, RefreshControl, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../../components/empty';
 import useAppwrite from '../../lib/use-appwrite';
@@ -11,13 +11,13 @@ import icons from '../../constants/icons';
 import { router } from 'expo-router';
 
 const Profile = () => {
+    const [refreshing, setRefreshing] = useState(false);
     const { userInfo, setUserInfo, setIsLogin } = useGlobalContext();
     const fetchFn = useCallback(() => {
         if (!userInfo?.$id) return Promise.resolve([]);
         return getCurUserVideo(userInfo.$id);
     }, [userInfo?.$id]);
-
-    const { videos, isLoading } = useAppwrite(fetchFn);
+    const { videos, isLoading, setVideos, fetchData } = useAppwrite(fetchFn);
 
     const logoutHandle = async () => {
         try {
@@ -29,6 +29,13 @@ const Profile = () => {
             console.log(error);
         }
     }
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        // request
+        await fetchData()
+        setRefreshing(false);
+    };
 
     return (
         <>
@@ -52,6 +59,8 @@ const Profile = () => {
                                     creator={item.creator.username}
                                     avatar={item.creator.avatar}
                                     type='col'
+                                    curVideoId={item.$id}
+                                    setVideos={setVideos}
                                 />
                                 // <Text className='text-white'>{item.title}</Text>
                             )
@@ -70,7 +79,7 @@ const Profile = () => {
                                     />
                                 </TouchableOpacity>
 
-                                <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
+                                <View className="w-16 h-16 border border-transparent rounded-lg flex justify-center items-center">
                                     <Image
                                         source={{ uri: userInfo?.avatar }}
                                         className="w-[90%] h-[90%] rounded-lg"
@@ -89,7 +98,7 @@ const Profile = () => {
                                         title={videos.length || 0}
                                         subtitle="videos"
                                         titleStyles="text-xl"
-                                        containerStyles="mr-10"
+                                        // containerStyles="mr-10"
                                     />
                                     {/* <InfoBox
                                         title="1.2k"
@@ -106,7 +115,7 @@ const Profile = () => {
                             subtitle="You haven't uploaded any videos yet" />
                     )}
 
-                    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 )}
 

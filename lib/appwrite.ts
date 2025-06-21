@@ -123,7 +123,8 @@ export async function searchVideo(query: string) {
             appwriteConfig.videoCollectionId,
             [Query.search('title', query)]
         );
-
+        console.log('searchVideo', posts);
+        
         return posts.documents;
     } catch (error: any) {
         throw new Error(error);
@@ -161,7 +162,7 @@ export async function getFilePreview(fileId: any, type: string) {
     try {
         if (type === "video") {
             fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
-            
+
         } else if (type === "image") {
             fileUrl = storage.getFileView(
                 appwriteConfig.storageId,
@@ -172,13 +173,13 @@ export async function getFilePreview(fileId: any, type: string) {
                 // 100
             ).toString();
             // console.log('\n\n\n\nimage', fileUrl);
-            
+
         } else {
             throw new Error("Invalid file type");
         }
 
         if (!fileUrl) throw Error("File not found");
-        
+
         return fileUrl;
     } catch (error: any) {
         throw new Error(error);
@@ -223,9 +224,9 @@ export async function createVideo(form: { title: string; video: any; thumbnail: 
             {
                 title: form.title,
                 thumbnail: thumbnailRes?.url,
-                thumbnailId: thumbnailRes?.id,
+                thumbnailFileId: thumbnailRes?.id,
                 video: videoRes?.url,
-                videoId: videoRes?.id,
+                videoFileId: videoRes?.id,
                 prompt: form.prompt,
                 creator: form.userId,
             }
@@ -243,41 +244,115 @@ export async function createVideo(form: { title: string; video: any; thumbnail: 
  */
 export async function collectVideo(videoId: string, userId: string) {
     try {
-      // 先获取视频文档
-      const video = await database.getDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.videoCollectionId,
-        videoId
-      );
-  
-      const collectors = video.collectors || [];
-  
-      // 如果已收藏，就不重复添加
-      if (collectors.includes(userId)) return collectors;
-  
-      // 添加用户 ID
-      const updated = [...collectors, userId];
-  
-      // 更新文档
-      const updatedVideo = await database.updateDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.videoCollectionId,
-        videoId,
-        {
-          collectors: updated,
-        }
-      );
-      console.log('\n\n\n\n\n收藏成功', updatedVideo);
-      
-      return updatedVideo;
-    } catch (error: any) {
-      throw new Error(error.message || '收藏失败');
-    }
-  }
-  
+        // 先获取视频文档
+        const video = await database.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            videoId
+        );
 
+        const collector = video.collector || [];
+
+        // 如果已收藏，就不重复添加
+        if (collector.includes(userId)) return collector;
+
+        // 添加用户 ID
+        const updated = [...collector, userId];
+
+        // 更新文档
+        const updatedVideo = await database.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            videoId,
+            {
+                collector: updated,
+            }
+        );
+
+        return updatedVideo;
+    } catch (error: any) {
+        throw new Error(error.message || '收藏失败');
+    }
+}
 
 
 /**
- * 取消收藏
+ * 取消收藏视频
  */
+export async function uncollectVideo(videoId: string, userId: string) {
+    try {
+        const video = await database.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            videoId
+        );
+
+        const collector = video.collector || [];
+
+        // 注意：Appwrite 多对多关系字段可能是对象数组，需要提取 $id
+        const currentIds = collector.map((item: any) =>
+            typeof item === 'string' ? item : item?.$id
+        );
+
+        // 不在收藏列表就跳过
+        if (!currentIds.includes(userId)) return video;
+
+        // 移除当前用户 ID
+        const updated = currentIds.filter((id: string) => id !== userId);
+
+        // 更新文档
+        const updatedVideo = await database.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            videoId,
+            {
+                collector: updated, // 多对多关系字段，必须传 ID 数组
+            }
+        );
+
+        return updatedVideo;
+    } catch (error: any) {
+        console.error('❌ 取消收藏失败', error);
+        throw new Error(error.message || '取消收藏失败');
+    }
+}
+
+/**
+ * 删除视频
+ */
+export async function deleteVideoWithFiles(videoId: string) {
+    try {
+        // 1. 获取视频文档（查出 storage 文件 ID）
+        const video = await database.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            videoId
+        );
+
+        const videoFileId = video.videoFileId;     // Appwrite Storage 中的视频文件 ID
+        const thumbnailFileId = video.thumbnailFileId;     // 封面图文件 ID，可选
+
+        // 2. 删除文档（必须先删文档再删文件，防止文档读取失败）
+        await database.deleteDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            videoId
+        );
+
+        // 3. 删除视频文件（如果存在）
+        if (videoFileId) {
+            await storage.deleteFile(appwriteConfig.storageId, videoFileId);
+        }
+
+        // 4. 删除封面图（如果存在）
+        if (thumbnailFileId) {
+            await storage.deleteFile(appwriteConfig.storageId, thumbnailFileId);
+        }
+
+        return true;
+    } catch (error: any) {
+        console.error('❌ 删除视频失败:', error);
+        throw new Error(error.message || '删除视频失败');
+    }
+}
+

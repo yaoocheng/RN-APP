@@ -12,7 +12,7 @@ import { useToast } from '../../hooks/useToast';
 const SearchPage = () => {
     const { query } = useLocalSearchParams();
     const fetchFn = useCallback(() => searchVideo(query as string), [query]);
-    const { videos, fetchData, isLoading } = useAppwrite(fetchFn);
+    const { videos, fetchData, isLoading, setVideos } = useAppwrite(fetchFn);
     const { showError } = useToast();
 
     useEffect(() => {
@@ -21,14 +21,14 @@ const SearchPage = () => {
             return;
         }
         fetchData();
-    }, [query, fetchData, showError])
+    }, [query])
 
     return (
         <>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                 <SafeAreaView className='bg-primary h-full'>
                     <View className='my-6 mb-12 px-4'>
-                        <Text className='font-pmedium text-sm text-green-100'>Search Result</Text>
+                        <Text className='font-pmedium text-sm mb-2 text-green-100'>Search Result</Text>
                         <Text className='font-psemibold text-2xl text-white'>{query}</Text>
 
                         <View className='mt-6'>
@@ -55,6 +55,9 @@ const SearchPage = () => {
                                         creator={item.creator.username}
                                         avatar={item.creator.avatar}
                                         type='col'
+                                        curVideoId={item.$id}
+                                        collector={item.collector || []}
+                                        setVideos={setVideos}
                                     />
                                     // <Text className='text-white'>{item.title}</Text>
                                 )

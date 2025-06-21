@@ -34,7 +34,7 @@ export default function Page() {
 
                     <Image
                         source={images.cards}
-                        className="max-w-[380px] w-full h-[300px]"
+                        className="max-w-[380px] w-full h-[280px]"
                         resizeMode="contain"
                     />
 

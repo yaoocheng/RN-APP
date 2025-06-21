@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// import { useFocusEffect } from '@react-navigation/native';
 import { Text, FlatList, View, Image, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { images } from '../../constants';
@@ -14,7 +15,7 @@ import { useGlobalContext } from '../../context/global-provider';
 const Home = () => {
     const { userInfo } = useGlobalContext();
     const [refreshing, setRefreshing] = useState(false);
-    const { videos: videosAll, fetchData: fetchDataAll, isLoading: isLoadingAll } = useAppwrite(getAllVideos);
+    const { videos: videosAll, fetchData: fetchDataAll, isLoading: isLoadingAll, setVideos: setVideosAll } = useAppwrite(getAllVideos);
     const { videos: videosLatest, fetchData: fetchDataLatest, isLoading: isLoadingLatest } = useAppwrite(getLatestVideos);
 
     const onRefresh = async () => {
@@ -23,6 +24,12 @@ const Home = () => {
         await Promise.all([fetchDataAll(), fetchDataLatest()])
         setRefreshing(false);
     };
+
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         Promise.all([fetchDataAll(), fetchDataLatest()])
+    //     }, [])
+    // );
 
     return (
         <>
@@ -38,17 +45,16 @@ const Home = () => {
                         keyExtractor={(item: any) => item.$id}
                         // 竖视频列表
                         renderItem={({ item }) => {
-                            // console.log(item.thumbnail);
-
                             return (
                                 <VideoCard
                                     title={item.title}
                                     thumbnail={item.thumbnail}
                                     video={item.video}
-                                    id={item.$id}
+                                    curVideoId={item.$id}
                                     creator={item.creator.username}
                                     avatar={item.creator.avatar}
-                                    collector={item.collector}
+                                    collector={item.collector || []}
+                                    setVideos={setVideosAll}
                                     type='col'
                                 />
                             )

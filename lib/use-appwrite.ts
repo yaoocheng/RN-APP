@@ -26,5 +26,6 @@ export default (fetchFn: any) => {
         isLoading,
         videos,
         fetchData,
+        setVideos
     }
 }

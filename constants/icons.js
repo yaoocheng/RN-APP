@@ -13,6 +13,7 @@ import eye from '../assets/icons/eye.png';
 import play from '../assets/icons/play.png';
 import collect from '../assets/icons/collect.png';
 import collected from '../assets/icons/collected.png';
+import deleteIcon from '../assets/icons/delete.png';
 
 export default {
     play,
@@ -29,5 +30,6 @@ export default {
     eyeHide,
     eye,
     collect,
-    collected
+    collected,
+    deleteIcon
 };
